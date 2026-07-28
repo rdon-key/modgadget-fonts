@@ -13,7 +13,7 @@ import (
 
 const bitmapChunkSize = 32
 
-// Options controls the package and exported variable names in generated code.
+// Options controls the package and variable names in generated code.
 type Options struct {
 	PackageName  string
 	VariableName string
