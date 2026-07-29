@@ -42,9 +42,9 @@ func Convert(src Font) (ConvertedFont, error) {
 				glyphDescription(*glyph), len(glyph.Bitmap), glyph.Box.Width, glyph.Box.Height, bitmapLength)
 		}
 
-		yOffset := int32(src.Ascent) - int32(glyph.Box.YOffset) - int32(glyph.Box.Height)
-		if yOffset < -1<<15 || yOffset > 1<<15-1 {
-			return ConvertedFont{}, fmt.Errorf("%s: converted YOffset %d does not fit int16", glyphDescription(*glyph), yOffset)
+		bearingY := int32(glyph.Box.Height) + int32(glyph.Box.YOffset)
+		if bearingY < -1<<15 || bearingY > 1<<15-1 {
+			return ConvertedFont{}, fmt.Errorf("%s: converted BearingY %d does not fit int16", glyphDescription(*glyph), bearingY)
 		}
 
 		if totalBitmap > uint64(^uint32(0)) || bitmapLength > uint64(^uint32(0))-totalBitmap {
@@ -60,7 +60,7 @@ func Convert(src Font) (ConvertedFont, error) {
 	}
 
 	result := ConvertedFont{
-		Metrics: font.Metrics{Ascent: src.Ascent, Descent: src.Descent},
+		Metrics: font.Metrics{Ascent: src.Ascent, Descent: src.Descent, LineGap: 0},
 		Glyphs:  make([]font.GlyphInfo, 0, len(ordered)),
 	}
 	bitmap := make([]byte, 0, int(totalBitmap))
@@ -79,15 +79,15 @@ func Convert(src Font) (ConvertedFont, error) {
 			}
 		}
 
-		yOffset := int16(int32(src.Ascent) - int32(glyph.Box.YOffset) - int32(glyph.Box.Height))
+		bearingY := int16(int32(glyph.Box.Height) + int32(glyph.Box.YOffset))
 		result.Glyphs = append(result.Glyphs, font.GlyphInfo{
 			Rune:         glyph.Encoding,
 			BitmapOffset: offset,
 			Width:        glyph.Box.Width,
 			Height:       glyph.Box.Height,
-			XOffset:      glyph.Box.XOffset,
-			YOffset:      yOffset,
-			Advance:      glyph.Advance,
+			AdvanceX:     glyph.Advance,
+			BearingX:     glyph.Box.XOffset,
+			BearingY:     bearingY,
 		})
 	}
 

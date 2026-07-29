@@ -36,7 +36,7 @@ func TestConvertMetricsOrderCoordinatesAndBitmap(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Convert() error: %v", err)
 	}
-	if got.Metrics != (font.Metrics{Ascent: 10, Descent: 3}) {
+	if got.Metrics != (font.Metrics{Ascent: 10, Descent: 3, LineGap: 0}) {
 		t.Errorf("Metrics = %+v, want ascent 10, descent 3", got.Metrics)
 	}
 	if len(got.Glyphs) != 2 || got.Glyphs[0].Rune != 'A' || got.Glyphs[1].Rune != 'B' {
@@ -47,11 +47,11 @@ func TestConvertMetricsOrderCoordinatesAndBitmap(t *testing.T) {
 	}
 
 	a := got.Glyphs[0]
-	if a.BitmapOffset != 0 || a.XOffset != -1 || a.Advance != 9 || a.YOffset != 11 {
+	if a.BitmapOffset != 0 || a.Width != 9 || a.Height != 1 || a.BearingX != -1 || a.AdvanceX != 9 || a.BearingY != -1 {
 		t.Errorf("converted A metadata = %+v", a)
 	}
 	b := got.Glyphs[1]
-	if b.BitmapOffset != 2 || b.XOffset != 1 || b.Advance != 8 || b.YOffset != 6 {
+	if b.BitmapOffset != 2 || b.Width != 8 || b.Height != 2 || b.BearingX != 1 || b.AdvanceX != 8 || b.BearingY != 4 {
 		t.Errorf("converted B metadata = %+v", b)
 	}
 	if got.Bitmap != "\xff\x80\x81\x42" {
@@ -102,6 +102,42 @@ func TestConvertBitmapMasks(t *testing.T) {
 	}
 }
 
+func TestConvertVariableWidthBaselineMetrics(t *testing.T) {
+	src := Font{Ascent: 9, Descent: 3, Glyphs: []Glyph{
+		{
+			Name: "second", Encoding: 'B', Advance: 9,
+			Box:    Box{Width: 7, Height: 8, XOffset: -1, YOffset: -2},
+			Bitmap: []byte{0xff, 0x80, 0x40, 0x20, 0x10, 0x08, 0x04, 0x02},
+		},
+		{
+			Name: "first", Encoding: 'A', Advance: 4,
+			Box:    Box{Width: 2, Height: 5, XOffset: 1, YOffset: -1},
+			Bitmap: []byte{0xff, 0x80, 0x40, 0x20, 0x00},
+		},
+	}}
+
+	got, err := Convert(src)
+	if err != nil {
+		t.Fatalf("Convert() error: %v", err)
+	}
+	if got.Metrics != (font.Metrics{Ascent: 9, Descent: 3, LineGap: 0}) {
+		t.Fatalf("Metrics = %+v", got.Metrics)
+	}
+	a, b := got.Glyphs[0], got.Glyphs[1]
+	if a.Rune != 'A' || a.Width != 2 || a.Height != 5 || a.AdvanceX != 4 || a.BearingX != 1 || a.BearingY != 4 {
+		t.Errorf("A metadata = %+v", a)
+	}
+	if b.Rune != 'B' || b.Width != 7 || b.Height != 8 || b.AdvanceX != 9 || b.BearingX != -1 || b.BearingY != 6 {
+		t.Errorf("B metadata = %+v", b)
+	}
+	if a.BitmapOffset != 0 || b.BitmapOffset != 5 {
+		t.Errorf("bitmap offsets = %d, %d; want 0, 5", a.BitmapOffset, b.BitmapOffset)
+	}
+	if got.Bitmap[:5] != "\xc0\x80\x40\x00\x00" {
+		t.Errorf("masked A bitmap = %x", got.Bitmap[:5])
+	}
+}
+
 func TestConvertEmptyGlyphAndOffsets(t *testing.T) {
 	src := Font{Glyphs: []Glyph{
 		{Name: "A", Encoding: 'A', Box: Box{Width: 8, Height: 1}, Bitmap: []byte{0x80}},
@@ -115,7 +151,7 @@ func TestConvertEmptyGlyphAndOffsets(t *testing.T) {
 	if got.Glyphs[0].Rune != 'A' || got.Glyphs[0].BitmapOffset != 0 {
 		t.Errorf("A glyph = %+v, want offset 0", got.Glyphs[0])
 	}
-	if got.Glyphs[1].Rune != 'Z' || got.Glyphs[1].BitmapOffset != 1 || got.Glyphs[1].Advance != 4 {
+	if got.Glyphs[1].Rune != 'Z' || got.Glyphs[1].BitmapOffset != 1 || got.Glyphs[1].AdvanceX != 4 {
 		t.Errorf("empty glyph = %+v, want current-end offset 1 and advance 4", got.Glyphs[1])
 	}
 	if got.Bitmap != "\x80" {
@@ -172,9 +208,9 @@ func TestConvertErrors(t *testing.T) {
 			needle: "require 1",
 		},
 		{
-			name: "YOffset overflow",
-			font: Font{Ascent: 32767, Glyphs: []Glyph{{
-				Name: "too-low", Encoding: 'A', Box: Box{YOffset: -32768},
+			name: "BearingY overflow",
+			font: Font{Glyphs: []Glyph{{
+				Name: "too-high", Encoding: 'A', Box: Box{Height: 32767, YOffset: 1}, Bitmap: make([]byte, 0),
 			}}},
 			needle: "does not fit int16",
 		},

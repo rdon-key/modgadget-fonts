@@ -102,12 +102,11 @@ A returned glyph contains:
 
 - `Bitmap`: an immutable substring of the font's shared bitmap data
 - `Width` and `Height`: bitmap dimensions in pixels
-- `XOffset` and `YOffset`: placement relative to the pen and line top
-- `Advance`: horizontal pen advance
+- `BearingX` and `BearingY`: placement relative to the pen and baseline
+- `AdvanceX`: horizontal pen advance
 
-`YOffset` has already been converted from the BDF coordinate system to a value
-measured from the top of the runtime line, so callers do not need to interpret
-the BDF baseline-relative Y offset.
+Draw the bitmap at `(penX + BearingX, baselineY - BearingY)`, then advance the
+pen by `AdvanceX`. The basic line advance is `Ascent + Descent + LineGap`.
 
 Bitmap data is 1-bit, row-major, top-to-bottom, and MSB first. Each row occupies
 `(Width + 7) / 8` bytes. No antialiasing, compression, rendering surface, or

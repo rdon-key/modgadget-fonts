@@ -6,6 +6,7 @@ package font
 type Metrics struct {
 	Ascent  int16
 	Descent int16
+	LineGap int16
 }
 
 // GlyphInfo contains the stored metadata for one glyph.
@@ -16,25 +17,28 @@ type GlyphInfo struct {
 	Rune         rune
 	BitmapOffset uint32
 
-	Width   int16
-	Height  int16
-	XOffset int16
-	YOffset int16
-	Advance int16
+	Width    int16
+	Height   int16
+	AdvanceX int16
+	BearingX int16
+	BearingY int16
 }
 
 // Glyph is a view of one glyph returned by Font.Lookup.
 //
-// Bitmap is an immutable substring of the Font's shared bitmap data.
+// Bitmap is an immutable substring of the Font's shared bitmap data. Glyph
+// placement is baseline-relative: draw the bitmap at
+// (penX+BearingX, baselineY-BearingY), then advance penX by AdvanceX. A font's
+// basic line advance is Ascent + Descent + LineGap.
 type Glyph struct {
 	Rune   rune
 	Bitmap string
 
-	Width   int16
-	Height  int16
-	XOffset int16
-	YOffset int16
-	Advance int16
+	Width    int16
+	Height   int16
+	AdvanceX int16
+	BearingX int16
+	BearingY int16
 }
 
 // Font contains runtime metrics, glyph metadata, and shared bitmap data.
@@ -117,12 +121,12 @@ func (f *Font) Lookup(r rune) (Glyph, bool) {
 	startIndex := int(start)
 	endIndex := int(end)
 	return Glyph{
-		Rune:    info.Rune,
-		Bitmap:  f.bitmap[startIndex:endIndex],
-		Width:   info.Width,
-		Height:  info.Height,
-		XOffset: info.XOffset,
-		YOffset: info.YOffset,
-		Advance: info.Advance,
+		Rune:     info.Rune,
+		Bitmap:   f.bitmap[startIndex:endIndex],
+		Width:    info.Width,
+		Height:   info.Height,
+		AdvanceX: info.AdvanceX,
+		BearingX: info.BearingX,
+		BearingY: info.BearingY,
 	}, true
 }

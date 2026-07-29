@@ -41,6 +41,7 @@ func Generate(src bdf.ConvertedFont, options Options) ([]byte, error) {
 	fmt.Fprintln(&output, "fontpkg.Metrics{")
 	fmt.Fprintf(&output, "Ascent: %d,\n", src.Metrics.Ascent)
 	fmt.Fprintf(&output, "Descent: %d,\n", src.Metrics.Descent)
+	fmt.Fprintf(&output, "LineGap: %d,\n", src.Metrics.LineGap)
 	fmt.Fprintln(&output, "},")
 	fmt.Fprintln(&output, "[]fontpkg.GlyphInfo{")
 	for _, glyph := range src.Glyphs {
@@ -49,9 +50,9 @@ func Generate(src bdf.ConvertedFont, options Options) ([]byte, error) {
 		fmt.Fprintf(&output, "BitmapOffset: %d,\n", glyph.BitmapOffset)
 		fmt.Fprintf(&output, "Width: %d,\n", glyph.Width)
 		fmt.Fprintf(&output, "Height: %d,\n", glyph.Height)
-		fmt.Fprintf(&output, "XOffset: %d,\n", glyph.XOffset)
-		fmt.Fprintf(&output, "YOffset: %d,\n", glyph.YOffset)
-		fmt.Fprintf(&output, "Advance: %d,\n", glyph.Advance)
+		fmt.Fprintf(&output, "AdvanceX: %d,\n", glyph.AdvanceX)
+		fmt.Fprintf(&output, "BearingX: %d,\n", glyph.BearingX)
+		fmt.Fprintf(&output, "BearingY: %d,\n", glyph.BearingY)
 		fmt.Fprintln(&output, "},")
 	}
 	fmt.Fprintln(&output, "},")

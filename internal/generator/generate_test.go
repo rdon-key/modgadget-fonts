@@ -19,14 +19,14 @@ var testOptions = Options{PackageName: "generated", VariableName: "Example"}
 
 func representativeFont() bdf.ConvertedFont {
 	return bdf.ConvertedFont{
-		Metrics: font.Metrics{Ascent: 10, Descent: 3},
+		Metrics: font.Metrics{Ascent: 10, Descent: 3, LineGap: 2},
 		Glyphs: []font.GlyphInfo{
 			{
 				Rune: 'A', BitmapOffset: 0, Width: 8, Height: 1,
-				XOffset: -1, YOffset: 2, Advance: 9,
+				AdvanceX: 9, BearingX: -1, BearingY: 2,
 			},
 			{Rune: '\u0301', BitmapOffset: 1},
-			{Rune: '\u4e2d', BitmapOffset: 1, Width: 8, Height: 1, YOffset: 10, Advance: 8},
+			{Rune: '\u4e2d', BitmapOffset: 1, Width: 8, Height: 1, AdvanceX: 8, BearingY: 10},
 			{Rune: '\ufe0f', BitmapOffset: 2},
 		},
 		Bitmap: "\x81\xff",
@@ -54,7 +54,7 @@ func TestGenerateSourceStructureAndFields(t *testing.T) {
 		"var Example = fontpkg.New(",
 		"Ascent:", "10", "Descent:", "3",
 		"Rune:", "'A'", `\u0301`, `\u4e2d`, `\ufe0f`,
-		"BitmapOffset:", "Width:", "Height:", "XOffset:", "YOffset:", "Advance:",
+		"BitmapOffset:", "Width:", "Height:", "AdvanceX:", "BearingX:", "BearingY:", "LineGap:",
 	}
 	for _, check := range checks {
 		if !strings.Contains(source, check) {
@@ -64,7 +64,7 @@ func TestGenerateSourceStructureAndFields(t *testing.T) {
 	compact := strings.NewReplacer(" ", "", "\t", "", "\r", "", "\n", "").Replace(source)
 	for _, check := range []string{
 		"Ascent:10,", "Descent:3,", "Rune:'A',", "BitmapOffset:0,",
-		"Width:8,", "Height:1,", "XOffset:-1,", "YOffset:2,", "Advance:9,",
+		"Width:8,", "Height:1,", "AdvanceX:9,", "BearingX:-1,", "BearingY:2,", "LineGap:2,",
 	} {
 		if !strings.Contains(compact, check) {
 			t.Errorf("generated source does not contain field value %q\n%s", check, source)

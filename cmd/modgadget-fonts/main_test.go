@@ -13,10 +13,10 @@ import (
 const testBDF = `STARTFONT 2.1
 FONT cli-test
 SIZE 8 75 75
-FONTBOUNDINGBOX 8 1 0 0
+FONTBOUNDINGBOX 8 6 0 -1
 STARTPROPERTIES 4
-FONT_ASCENT 1
-FONT_DESCENT 0
+FONT_ASCENT 5
+FONT_DESCENT 1
 CHARSET_REGISTRY "ISO10646"
 CHARSET_ENCODING "1"
 ENDPROPERTIES
@@ -30,10 +30,14 @@ BITMAP
 ENDCHAR
 STARTCHAR A
 ENCODING 65
-DWIDTH 8 0
-BBX 8 1 0 0
+DWIDTH 4 0
+BBX 2 5 1 -1
 BITMAP
-81
+FF
+80
+40
+20
+00
 ENDCHAR
 STARTCHAR JAPANESE_DAY
 ENCODING 26085
@@ -71,8 +75,13 @@ func TestRunGeneratesSubsetGoSource(t *testing.T) {
 		t.Fatalf("generated source does not parse: %v\n%s", err, generated)
 	}
 	source := string(generated)
-	for _, expected := range []string{"package generated", "var HeadlineFont", "'A'", `\u65e5`} {
-		if !strings.Contains(source, expected) {
+	compact := strings.NewReplacer(" ", "", "\t", "", "\r", "", "\n", "").Replace(source)
+	for _, expected := range []string{
+		"packagegenerated", "varHeadlineFont", "Rune:'A'", `Rune:'\u65e5'`,
+		"Ascent:5", "Descent:1", "LineGap:0",
+		"Width:2", "Height:5", "AdvanceX:4", "BearingX:1", "BearingY:4",
+	} {
+		if !strings.Contains(compact, expected) {
 			t.Errorf("generated source does not contain %q\n%s", expected, source)
 		}
 	}

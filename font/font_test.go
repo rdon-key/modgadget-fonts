@@ -17,7 +17,7 @@ func TestLookupEmptyFont(t *testing.T) {
 }
 
 func TestNewAndMetrics(t *testing.T) {
-	metrics := Metrics{Ascent: 9, Descent: 3}
+	metrics := Metrics{Ascent: 9, Descent: 3, LineGap: 2}
 	glyphs := []GlyphInfo{{Rune: 'A', Width: 8, Height: 1}}
 	bitmap := "\x81"
 	f := New(metrics, glyphs, bitmap)
@@ -43,9 +43,9 @@ func TestNewAndMetrics(t *testing.T) {
 
 func TestLookupPositionsAndMissingRune(t *testing.T) {
 	glyphs := []GlyphInfo{
-		{Rune: 'A', BitmapOffset: 0, Width: 8, Height: 1},
-		{Rune: 'M', BitmapOffset: 1, Width: 8, Height: 1},
-		{Rune: 'Z', BitmapOffset: 2, Width: 8, Height: 1},
+		{Rune: 'A', BitmapOffset: 0, Width: 8, Height: 1, AdvanceX: 4, BearingX: -1, BearingY: -2},
+		{Rune: 'M', BitmapOffset: 1, Width: 8, Height: 1, AdvanceX: 5, BearingY: 0},
+		{Rune: 'Z', BitmapOffset: 2, Width: 8, Height: 1, AdvanceX: 6, BearingX: 1, BearingY: 2},
 	}
 	f := New(Metrics{}, glyphs, "\xa1\xb2\xc3")
 
@@ -63,6 +63,15 @@ func TestLookupPositionsAndMissingRune(t *testing.T) {
 		}
 		if len(got.Bitmap) != 1 || got.Bitmap[0] != test.want {
 			t.Errorf("Lookup(%q).Bitmap = %q, want %q", test.r, got.Bitmap, string(test.want))
+		}
+		info := glyphs[0]
+		if test.r == 'M' {
+			info = glyphs[1]
+		} else if test.r == 'Z' {
+			info = glyphs[2]
+		}
+		if got.AdvanceX != info.AdvanceX || got.BearingX != info.BearingX || got.BearingY != info.BearingY {
+			t.Errorf("Lookup(%q) metrics = %+v, want %+v", test.r, got, info)
 		}
 	}
 
@@ -171,7 +180,7 @@ func TestLookupEmptyGlyph(t *testing.T) {
 			BitmapOffset: uint32(len(bitmap)),
 			Width:        0,
 			Height:       0,
-			Advance:      4,
+			AdvanceX:     4,
 		},
 	}
 	f := New(Metrics{}, glyphs, bitmap)
@@ -183,8 +192,19 @@ func TestLookupEmptyGlyph(t *testing.T) {
 	if len(got.Bitmap) != 0 {
 		t.Fatalf("len(Bitmap) = %d, want 0", len(got.Bitmap))
 	}
-	if got.Advance != 4 {
-		t.Fatalf("Advance = %d, want 4", got.Advance)
+	if got.AdvanceX != 4 {
+		t.Fatalf("AdvanceX = %d, want 4", got.AdvanceX)
+	}
+}
+
+func TestLookupZeroWidthPositiveHeight(t *testing.T) {
+	f := New(Metrics{}, []GlyphInfo{{Rune: ' ', Width: 0, Height: 2, AdvanceX: 3}}, "")
+	got, ok := f.Lookup(' ')
+	if !ok {
+		t.Fatal("Lookup(' ') failed")
+	}
+	if got.Bitmap != "" || got.Width != 0 || got.Height != 2 || got.AdvanceX != 3 {
+		t.Fatalf("Lookup(' ') = %+v, want zero-width, height 2, advance 3", got)
 	}
 }
 
