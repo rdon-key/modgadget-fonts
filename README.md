@@ -5,11 +5,9 @@ packages for ModGadget applications.
 
 The related repositories have separate responsibilities:
 
-* `modgadget-font-assets` owns the source font assets and the primary
-  asset-generation and validation pipeline.
+* `modgadget-font-assets` owns the canonical font sources, provenance,
+  generation, and validation pipeline.
 * `modgadget-fonts` distributes generated MGF assets as importable Go packages.
-  It may also contain internal tooling used to build or validate the
-  distributed packages.
 * `modgadget` reads MGF data and provides font measurement, layout, and drawing.
 
 ## Packages
@@ -21,8 +19,13 @@ The related repositories have separate responsibilities:
   License and notice materials: `LICENSES/efont-unicode-bdf-0.4.2/`
 
 * `shinonome12`: Shinonome 12
-  License: `LICENSES/shinonome-BSD-3-Clause.txt`
-  Notice: `LICENSES/shinonome-NOTICE.txt`
+  Font data: Public Domain
+  Canonical source: Debian `xfonts-shinonome` version `1:0.9.11-7`, file
+  `shnmk12.pcf.gz`
+  Source/license information: `LICENSES/xfonts-shinonome-debian-copyright`
+  The `Files: *` Public-Domain stanza applies to the upstream font data. The
+  separate GPL-2+ stanza applies only to the Debian `debian/*` packaging files,
+  not to the generated MGF font data.
 
 * `spleen8x16`: Spleen 8x16
   License: `LICENSES/spleen-BSD-2-Clause.txt`
@@ -50,7 +53,7 @@ func configure() {
 }
 ```
 
-## Creating another font package
+## Using a custom font package
 
 An application or another module can distribute a generated MGF with the same
 small wrapper pattern:
@@ -82,4 +85,3 @@ See `LICENSE`.
 Embedded fonts remain subject to their original licenses, copyrights, and
 notice requirements. The applicable license and notice materials for each
 distributed font are preserved under `LICENSES/`.
-
