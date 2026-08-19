@@ -1,4 +1,4 @@
-// Package shinonome12 provides the embedded Shinonome 12 MGF font.
+// Package shinonome12 provides the embedded Shinonome 12 MGZ font.
 package shinonome12
 
 import (
@@ -7,8 +7,8 @@ import (
 	"github.com/rdon-key/modgadget"
 )
 
-//go:embed shinonome12-full.mgf
+//go:embed shinonome12-full.mgz
 var data string
 
 // Font is the embedded full Shinonome 12 font.
-var Font modgadget.Font = modgadget.MustOpenMGF(data)
+var Font modgadget.Font = modgadget.MustOpenMGZ(data)

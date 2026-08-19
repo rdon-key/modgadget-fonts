@@ -1,4 +1,4 @@
-// Package efont24 provides the embedded Efont Biwidth 24 MGF font.
+// Package efont24 provides the embedded Efont Biwidth 24 MGZ font.
 package efont24
 
 import (
@@ -7,8 +7,8 @@ import (
 	"github.com/rdon-key/modgadget"
 )
 
-//go:embed efont24-full.mgf
+//go:embed efont24-full.mgz
 var data string
 
 // Font is the embedded full Efont Biwidth 24 font.
-var Font modgadget.Font = modgadget.MustOpenMGF(data)
+var Font modgadget.Font = modgadget.MustOpenMGZ(data)

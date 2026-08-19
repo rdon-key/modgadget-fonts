@@ -1,4 +1,4 @@
-// Package efont16 provides the embedded Efont Biwidth 16 MGF font.
+// Package efont16 provides the embedded Efont Biwidth 16 MGZ font.
 package efont16
 
 import (
@@ -7,8 +7,8 @@ import (
 	"github.com/rdon-key/modgadget"
 )
 
-//go:embed efont16-full.mgf
+//go:embed efont16-full.mgz
 var data string
 
 // Font is the embedded full Efont Biwidth 16 font.
-var Font modgadget.Font = modgadget.MustOpenMGF(data)
+var Font modgadget.Font = modgadget.MustOpenMGZ(data)

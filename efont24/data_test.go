@@ -7,10 +7,10 @@ import (
 )
 
 func TestEmbeddedFont(t *testing.T) {
-	if len(data) != 2706726 {
+	if len(data) != 1515662 {
 		t.Fatalf("data size=%d", len(data))
 	}
-	if hash := fmt.Sprintf("%x", sha256.Sum256([]byte(data))); hash != "d87645e7b45cbf9e9758349a9a337bd38ef832d781e96c19d0596f113ca8f4a7" {
+	if hash := fmt.Sprintf("%x", sha256.Sum256([]byte(data))); hash != "87aae3c259f37b48b574fb1ff2942c04736b84b942bec6783d9d70425a852952" {
 		t.Fatalf("SHA-256=%s", hash)
 	}
 	if !Font.Valid() || Font.Metrics().LineHeight() != 24 {
