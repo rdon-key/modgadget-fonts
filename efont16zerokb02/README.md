@@ -15,15 +15,20 @@ Efont Unicode BDF 0.4.2 and remains subject to its original font license
 and notice, available under [LICENSES](../LICENSES/efont-unicode-bdf-0.4.2/).
 
 It is intentionally smaller than the complete Efont16 MGZ (876,150
-bytes). In particular, its import-time `modgadget.MustOpenMGZ` validates
-448 glyph metadata records rather than 24,618.
+bytes). Its `Open()` function validates 448 glyph metadata records rather
+than 24,618. Unlike the original Efont16 package, this diagnostic subset
+does **not** parse the font at package initialization time. Applications
+can initialize serial and the display before calling `Open()`.
 
 Usage:
 
 ```go
 import "github.com/rdon-key/modgadget-fonts/efont16zerokb02"
 
-font := efont16zerokb02.Font
+font, err := efont16zerokb02.Open()
+if err != nil {
+    panic(err)
+}
 ```
 
 The package provides a diagnostic workaround for the Zero-KB02 greeting
