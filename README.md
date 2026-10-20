@@ -15,6 +15,11 @@ The related repositories have separate responsibilities:
 * `efont16`: Efont Biwidth 16
   License and notice materials: `LICENSES/efont-unicode-bdf-0.4.2/`
 
+* `efont16zerokb02`: Efont Biwidth 16 subset covering `恭喜進軍台灣！` on Zero-KB02
+  (17,001-byte MGZ, seven unchanged compressed blocks / 448 glyphs).
+  Source: the `efont16` MGZ in this repository; see [derivation details](efont16zerokb02/README.md).
+  License and notice: `LICENSES/efont-unicode-bdf-0.4.2/`
+
 * `efont24`: Efont Biwidth 24
   License and notice materials: `LICENSES/efont-unicode-bdf-0.4.2/`
 
