@@ -14,5 +14,11 @@ import (
 //go:embed efont16-zerokb02.mgz
 var data string
 
-// Font contains 448 Efont Biwidth 16 glyphs, including 恭喜進軍台灣！.
-var Font modgadget.Font = modgadget.MustOpenMGZ(data)
+// Open validates and opens the embedded MGZ font when the caller requests it.
+//
+// This deliberately avoids a package-level MustOpenMGZ initializer, allowing
+// microcontroller code to initialize USB serial / OLED before parsing the
+// font. The file is embedded in firmware as read-only data.
+func Open() (modgadget.Font, error) {
+	return modgadget.OpenMGZ(data)
+}
